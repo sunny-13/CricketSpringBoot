@@ -13,6 +13,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static java.util.Objects.isNull;
+
 @Service
 public class PlayerService {
     @Autowired
@@ -26,9 +28,11 @@ public class PlayerService {
 
     public Player getPlayerById(String playerId){
 
-        Optional<Player> player =  playerRepository.findById(playerId);
-        if(player.isPresent()) return player.get();
-        return null;
+        Player player =  playerRepository.findById(playerId).get();
+        if(isNull(player)) {
+            return null;
+        }
+        return player;
     }
 
     public Player getPlayerByName(String playerName){

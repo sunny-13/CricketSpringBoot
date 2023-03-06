@@ -29,89 +29,86 @@ public class Match {
     private ScoreCard currentBowling;
     private int strikePlayer;
     private int nonStrikePlayer;
-    private List<Boolean> playersOut = new ArrayList<>(Collections.nCopies(11,false));
+    private List<Boolean> playersOut = new ArrayList<>(Collections.nCopies(11, false));
     final private Logger logger = LoggerFactory.getLogger(Match.class);
 
-    public String setMatchDetails(String matchType,String team1Name, String team2Name,String team1Id, String team2Id){
-        try{
+    public String setMatchDetails(String matchType, String team1Name, String team2Name, String team1Id, String team2Id) {
+        try {
 
             setMatchId(UUID.randomUUID().toString());
 
-            if(matchType.equals("ODI")){
+            if (matchType.equals("ODI")) {
                 this.matchType = MatchType.ODI;
-                totalBallsEachInning=300;
+                totalBallsEachInning = 300;
                 ballDecision = new BallDecisionODI();
-            }
-            else{
+            } else {
                 this.matchType = MatchType.T20;
-                totalBallsEachInning=120;
+                totalBallsEachInning = 120;
                 ballDecision = new BallDecisionT20();
             }
             scoreCard = new ScoreCard[2];
-            scoreCard[0] = new ScoreCard(matchId,team1Id,team1Name);
-            scoreCard[1] = new ScoreCard(matchId,team2Id,team2Name);
+            scoreCard[0] = new ScoreCard(matchId, team1Id, team1Name);
+            scoreCard[1] = new ScoreCard(matchId, team2Id, team2Name);
             return "Match Started!";
-        }catch (Exception e){
+        } catch (Exception e) {
 
             return "Some unknown error;";
         }
     }
 
 
-    public String toss(String tossChoice){
-        int random = (int) (Math.random()*2)+1;
-        if((tossChoice.equals("HEADS") && random ==1) || (tossChoice.equals("TAILS") && random==2)){
+    public String toss(String tossChoice) {
+        int random = (int) (Math.random() * 2) + 1;
+        if ((tossChoice.equals("HEADS") && random == 1) || (tossChoice.equals("TAILS") && random == 2)) {
             setCurrentBatting(scoreCard[0]);
             setCurrentBowling(scoreCard[1]);
-        }
-        else{
+        } else {
             setCurrentBatting(scoreCard[1]);
             setCurrentBowling(scoreCard[0]);
         }
-        return currentBatting.getTeamName()+ "won the toss !";
+        return currentBatting.getTeamName() + " won the toss !";
     }
 
-    private void changeStrike(){
+    private void changeStrike() {
         int temp = getStrikePlayer();
         setStrikePlayer(getNonStrikePlayer());
         setNonStrikePlayer(temp);
     }
-    private void runScored(int run){
-        logger.info(run+" ");
+
+    private void runScored(int run) {
+        logger.info(run + " ");
         int strike = getStrikePlayer();
-        currentBatting.getRunsScored().set(strike,currentBatting.getRunsScored().get(strike)+run);
-        currentBatting.setTotalRuns(currentBatting.getTotalRuns()+run);
-        if(run%2==1) changeStrike();
+        currentBatting.getRunsScored().set(strike, currentBatting.getRunsScored().get(strike) + run);
+        currentBatting.setTotalRuns(currentBatting.getTotalRuns() + run);
+        if (run % 2 == 1) changeStrike();
     }
 
-    private void wicketDown(){
-        currentBatting.setWicketsDown(currentBatting.getWicketsDown()+1);
+    private void wicketDown() {
+        currentBatting.setWicketsDown(currentBatting.getWicketsDown() + 1);
         List<Boolean> playerOutList = getPlayersOut();
-        playerOutList.set(getStrikePlayer(),true);
+        playerOutList.set(getStrikePlayer(), true);
         logger.info("W ");
-        for(int i=0;i<=10;i++){
-            if(!playerOutList.get(i)){
+        for (int i = 0; i <= 10; i++) {
+            if (!playerOutList.get(i)) {
                 setStrikePlayer(i);
-                playerOutList.set(i,true);
+                playerOutList.set(i, true);
                 break;
             }
         }
     }
 
 
-    private void overFinished(){
+    private void overFinished() {
 //        logger.info("\n");
         changeStrike();
     }
 
 
-
-
-    public ScoreCard playInning1(){
+    public ScoreCard playInning1() {
         int currBalls = 1;
         while (currBalls <= totalBallsEachInning && currentBatting.getWicketsDown() < 10) {
             int ballResult = ballDecision.ballDecision(getStrikePlayer());
-            if(ballResult==7) wicketDown();
+            if (ballResult == 7) wicketDown();
             else runScored(ballResult);
 
             if (currBalls % 6 == 0) {
@@ -123,22 +120,22 @@ public class Match {
         return currentBowling;
     }
 
-    private void changeInning(){
-        for(int i=0;i<11;i++) {
+    private void changeInning() {
+        for (int i = 0; i < 11; i++) {
             playersOut.set(i, false);
         }
         ScoreCard temp = currentBatting;
         currentBatting = currentBowling;
-        currentBowling =temp;
+        currentBowling = temp;
     }
 
-    public ScoreCard playInning2(){
+    public ScoreCard playInning2() {
 
         int currBalls = 1;
         while (currBalls <= totalBallsEachInning && currentBatting.getWicketsDown() < 10 && currentBatting.getTotalRuns() <= currentBowling.getTotalRuns()) {
 
             int ballResult = ballDecision.ballDecision(getStrikePlayer());
-            if(ballResult==7) wicketDown();
+            if (ballResult == 7) wicketDown();
             else runScored(ballResult);
 
             if (currBalls % 6 == 0) {
@@ -149,24 +146,23 @@ public class Match {
         return currentBatting;
     }
 
-    public String declareResult(){
+    public String declareResult() {
         logger.info("\n");
-        if(getScoreCard0().getTotalRuns()>getScoreCard1().getTotalRuns()) {
+        if (getScoreCard0().getTotalRuns() > getScoreCard1().getTotalRuns()) {
             getScoreCard0().setWin(true);
-            return getScoreCard0().getTeamName()+" wins";
-        }
-        else if(getScoreCard0().getTotalRuns()<getScoreCard1().getTotalRuns()) {
+            return getScoreCard0().getTeamName() + " wins";
+        } else if (getScoreCard0().getTotalRuns() < getScoreCard1().getTotalRuns()) {
             getScoreCard1().setWin(true);
-            return getScoreCard1().getTeamName()+" wins";
+            return getScoreCard1().getTeamName() + " wins";
         }
         return "TIE";
     }
 
-    public ScoreCard getScoreCard0(){
+    public ScoreCard getScoreCard0() {
         return scoreCard[0];
     }
 
-    public ScoreCard getScoreCard1(){
+    public ScoreCard getScoreCard1() {
         return scoreCard[1];
     }
 

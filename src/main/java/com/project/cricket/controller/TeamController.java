@@ -1,6 +1,5 @@
 package com.project.cricket.controller;
 
-import com.project.cricket.entity.Player;
 import com.project.cricket.entity.Team;
 import com.project.cricket.service.TeamService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,22 +13,22 @@ public class TeamController {
 
     @Autowired
     private TeamService teamService;
-    @PostMapping("/new")
+    @PostMapping("/create")
     public Team addTeam(@RequestBody Team team){
         return teamService.addTeam(team);
     }
 
-    @GetMapping("/get")
+    @GetMapping("/")
     public Team getTeamByName(@RequestParam String teamName){
         return teamService.getTeamByName(teamName);
     }
 
-    @GetMapping("/matchList")
+    @GetMapping("/match_list")
     public List<String> getMatchListByTeamId(@RequestParam String teamName){
         return teamService.getMatchListByTeamName(teamName);
     }
 
-    @GetMapping("/playerList")
+    @GetMapping("/player_list")
     public List<String> getPlayerListByTeamName(@RequestParam String teamName){
         return teamService.getPlayerListByTeamName(teamName);
     }

@@ -13,6 +13,8 @@ import java.util.UUID;
 public class ScoreCardService {
     @Autowired
     private ScoreCardRepository scoreCardRepository;
+//    @Autowired
+//    private PlayerService playerService;
 
 
     public ScoreCard addScoreCard(ScoreCard scoreCard){

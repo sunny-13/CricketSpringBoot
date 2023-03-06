@@ -11,7 +11,7 @@ public class MatchController {
     @Autowired
     private MatchService matchService;
 
-    @PostMapping("/new")
+    @PostMapping("/create")
     public String startMatch(@RequestParam String matchType,@RequestParam String team1Name,@RequestParam String team2Name){
         return matchService.setMatchDetails(matchType,team1Name,team2Name);
 
@@ -32,12 +32,12 @@ public class MatchController {
         return matchService.playInning2();
     }
 
-    @GetMapping("/getResult")
+    @GetMapping("/get_result")
     public String getResult(){
         return matchService.declareResult();
     }
 
-    @PostMapping("/saveResults")
+    @PostMapping("/save_result")
     public String saveResults(){
         return matchService.saveResults();
     }

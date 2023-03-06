@@ -13,27 +13,27 @@ public class ScoreCardController {
     @Autowired
     private ScoreCardService scoreCardService;
 
-    @PostMapping("/new")
+    @PostMapping("/create")
     public ScoreCard getNewScorecard(@RequestBody ScoreCard scoreCard){
         return scoreCardService.addScoreCard(scoreCard);
     }
 
-    @GetMapping("/getById")
-    public ScoreCard getScoreCardById(@RequestParam  String scoreCardId){
+    @GetMapping("")
+    public ScoreCard getScoreCardById(@RequestParam("scoreCardId")  String scoreCardId){
         return scoreCardService.getScoreCardById(scoreCardId);
     }
 
-    @GetMapping("/getByTeamAndMatch")
+    @GetMapping("/team_match")
     public ScoreCard getScoreCard(@RequestParam String teamId,@RequestParam String matchId){
         return scoreCardService.getScoreCardByTeamIdMatchId(teamId,matchId);
     }
 
-    @GetMapping("/getListByTeamName")
-    public List<ScoreCard> getScoreCardListByTeamName(@RequestParam String  teamName){
+    @GetMapping("/team")
+    public List<ScoreCard> getScoreCardListByTeamName(@RequestParam("teamName") String  teamName){
         return scoreCardService.getScoreCardsByTeamName(teamName);
     }
 
-    @GetMapping("/getByMatchId")
+    @GetMapping("/match")
     public List<ScoreCard> getScoreCardsByMatchId(@RequestParam String  matchId){
         return scoreCardService.getScoreCardsByMatchId(matchId);
     }
