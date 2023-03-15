@@ -17,9 +17,9 @@ public class PlayerController {
     public Player addPlayer(@RequestParam String playerName,@RequestParam String teamName){
         return playerService.addPlayer(playerName,teamName);
     }
-    @GetMapping("/run_list")
-    public List<Integer> getTotalRunsByPlayerId(@RequestParam String playerName){
-        return playerService.getRunListByPlayerName(playerName);
-    }
+//    @GetMapping("/run_list")
+//    public List<Integer> getTotalRunsByPlayerId(@RequestParam String playerName){
+//        return playerService.getRunListByPlayerName(playerName);
+//    }
 
 }

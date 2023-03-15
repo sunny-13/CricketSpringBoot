@@ -1,7 +1,6 @@
 package com.project.cricket.entity;
 
-
-import lombok.AllArgsConstructor;
+import com.project.cricket.classes.MatchType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
@@ -9,16 +8,16 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
-@Document(collection = "Player")
+@Document(collection = "series")
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
-public class Player {
-
+public class Series {
     @Id
-    private String playerId;
-    private String playerName;
-    private String teamId;
-    private int playerIndex;
+    private String seriesId;
+    private List<String> teams;
+    private MatchType seriesType;
+    private int noOfMatches;
+    private List<String> matchIds;
+
 
 }

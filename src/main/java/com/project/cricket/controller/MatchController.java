@@ -1,9 +1,11 @@
 package com.project.cricket.controller;
 
-import com.project.cricket.entity.ScoreCard;
+import com.project.cricket.classes.ScoreCard;
 import com.project.cricket.service.MatchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/match")
@@ -13,32 +15,28 @@ public class MatchController {
 
     @PostMapping("/create")
     public String startMatch(@RequestParam String matchType,@RequestParam String team1Name,@RequestParam String team2Name){
-        return matchService.setMatchDetails(matchType,team1Name,team2Name);
+        return matchService.newMatch(matchType, team1Name, team2Name);
 
     }
 
     @PostMapping("/toss")
-    public String tossMatch(@RequestParam String tossChoice){
-        return matchService.toss(tossChoice);
+    public String tossMatch(@RequestParam String matchId, @RequestParam String tossChoice){
+        return matchService.toss(matchId,tossChoice);
     }
 
     @GetMapping("/playInning1")
-    public ScoreCard playInning1(){
-        return matchService.playInning1();
+    public List<ScoreCard> playInning1(@RequestParam String matchId){
+        return matchService.playInning1(matchId);
     }
 
     @GetMapping("/playInning2")
-    public ScoreCard playInning2(){
-        return matchService.playInning2();
+    public List<ScoreCard> playInning2(@RequestParam String matchId){
+        return matchService.playInning2(matchId);
     }
 
-    @GetMapping("/get_result")
-    public String getResult(){
-        return matchService.declareResult();
+    @GetMapping("/result")
+    public String getResult(@RequestParam String matchId){
+        return matchService.declareResult(matchId);
     }
 
-    @PostMapping("/save_result")
-    public String saveResults(){
-        return matchService.saveResults();
-    }
 }

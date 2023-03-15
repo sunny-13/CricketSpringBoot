@@ -1,77 +1,159 @@
 package com.project.cricket.service;
 
+import com.project.cricket.classes.MatchSimulator;
+import com.project.cricket.classes.MatchStatus;
+import com.project.cricket.classes.ScoreCard;
+import com.project.cricket.entity.BattingScoreCard;
+import com.project.cricket.entity.BowlingScoreCard;
 import com.project.cricket.entity.Match;
-import com.project.cricket.entity.ScoreCard;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.project.cricket.repository.BattingScoreCardRepository;
+import com.project.cricket.repository.BowlingScoreCardRepository;
+import com.project.cricket.repository.MatchRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static java.util.Objects.isNull;
+
 
 @Service
-@Data
-@NoArgsConstructor
 public class MatchService {
     @Autowired
-    private Match match;
+    private MatchSimulator matchSimulator;
     @Autowired
-    private TeamService teamService;
+    private MatchRepository matchRepository;
+
     @Autowired
     private ScoreCardService scoreCardService;
     @Autowired
-    private PlayerService playerService;
+    private BattingScoreCardRepository battingScoreCardRepository;
+    @Autowired
+    private BowlingScoreCardRepository bowlingScoreCardRepository;
 
-    public String setMatchDetails(String matchType,String team1Name, String team2Name){
-
-        String team1Id = teamService.getTeamIdByName(team1Name);
-        String team2Id = teamService.getTeamIdByName(team2Name);
-        return match.setMatchDetails(matchType,team1Name,team2Name,team1Id,team2Id);
-    }
-
-    public String toss(String tossChoice){
-        return match.toss(tossChoice);
+    public String newMatch(String matchType,String team1Name, String team2Name){
+        Match match = new Match(matchType,team1Name,team2Name);
+        matchRepository.save(match);
+        return "Match created with id: "+ match.getMatchId();
     }
 
 
-    public ScoreCard playInning1(){
-        return match.playInning1();
-    }
 
-    public ScoreCard playInning2(){
-        return match.playInning2();
-    }
-
-    public String declareResult(){
-        return match.declareResult();
-    }
-
-    public String saveResults(){
-
-        try{
-            addScoreCard();
-            updateMatchListTeam();
-            updateMatchListPlayer();
-            return "Results persisted !";
-
-        }catch (Exception e){
-            e.printStackTrace();
-            return "Results couldn't be persisted !";
+    public String toss(String matchId, String tossChoice){
+        Optional<?> matchOptional= matchRepository.findById(matchId);
+        if(!matchOptional.isPresent()) return "No match found with given ID";
+        Match match = ((Match) matchOptional.get());
+        if(match.getStatus()!= MatchStatus.INITIALIZED) return "Toss already done!";
+        int random = (int) (Math.random() * 2) + 1;
+        if ((tossChoice.equals("HEADS") && random == 1) || (tossChoice.equals("TAILS") && random == 2)) {
+            match.setFirstBattingTeam(match.getTeams().get(0));
+        } else {
+            match.setFirstBattingTeam(match.getTeams().get(1));
         }
+        match.setStatus(MatchStatus.TOSS_DONE);
+        matchRepository.save(match);
+        return match.getFirstBattingTeam() + " won the toss !";
     }
 
-    private void addScoreCard(){
-        scoreCardService.addScoreCard(match.getScoreCard0());
-        scoreCardService.addScoreCard(match.getScoreCard1());
+    public List<ScoreCard> playInning1(String matchId){
+        Match match = matchRepository.findById(matchId).get();
+        if(isNull(match)) {
+            System.out.println("No match found with given ID");
+            return null;
+        }
+        MatchStatus matchStatus = match.getStatus();
+        switch (matchStatus) {
+            case INITIALIZED -> {
+                System.out.println("Toss yet not done");
+                return null;
+            }
+            case TOSS_DONE -> {
+                List<ScoreCard> scoreCards = matchSimulator.playInning1(match);
+                match.setStatus(MatchStatus.INNING1_OVER);
+                matchRepository.save(match);
+                scoreCardService.saveBattingScoreCard((BattingScoreCard) scoreCards.get(0));
+                scoreCardService.saveBowlingScoreCard((BowlingScoreCard) scoreCards.get(1));
+                return scoreCards;
+            }
+            default -> {
+                System.out.println("Inning1 Already Over");
+                List<ScoreCard> scoreCards = new ArrayList<>();
+                scoreCards.add(battingScoreCardRepository.findByMatchIdTeamName(matchId,match.getFirstBattingTeam()));
+                scoreCards.add(bowlingScoreCardRepository.findByMatchIdTeamName(matchId,
+                        match.getFirstBattingTeam().equals(match.getTeams().get(0)) ? match.getTeams().get(1):match.getTeams().get(0)));
+                return scoreCards;
+            }
+        }
+
     }
 
-    public void updateMatchListTeam(){
-        teamService.updateMatchList(match.getScoreCard0().getTeamId(),match.getMatchId());
-        teamService.updateMatchList(match.getScoreCard1().getTeamId(),match.getMatchId());
+    public List<ScoreCard> playInning2(String matchId){
+        Match match = matchRepository.findById(matchId).get();
+        if(isNull(match)) {
+            System.out.println("No match found with given ID");
+            return null;
+        }
+        MatchStatus matchStatus = match.getStatus();
+        switch (matchStatus) {
+            case INITIALIZED -> {
+                System.out.println("Toss yet not done !");
+                return null;
+            }
+            case TOSS_DONE -> {
+                System.out.println("Inning1 not done !");
+                return null;
+            }
+            case INNING1_OVER -> {
+                BattingScoreCard firstInningBatting = scoreCardService.findBattingByMatchIdTeamName(matchId,match.getFirstBattingTeam());
+                List<ScoreCard> scoreCards = matchSimulator.playInning2(match,firstInningBatting);
+                match.setStatus(MatchStatus.OVER);
+                matchRepository.save(match);
+                scoreCardService.saveBattingScoreCard((BattingScoreCard) scoreCards.get(0));
+                scoreCardService.saveBowlingScoreCard((BowlingScoreCard) scoreCards.get(1));
+                return scoreCards;
+            }
+            default -> {
+                System.out.println("Inning2 Already Over");
+                List<ScoreCard> scoreCards = scoreCardService.findByMatchId(matchId);
+                return scoreCards;
+            }
+        }
+
     }
 
-    public void updateMatchListPlayer(){
-        playerService.updateMatchList(teamService.getPlayerListByTeamId(match.getScoreCard0().getTeamId()),match.getMatchId());
-        playerService.updateMatchList(teamService.getPlayerListByTeamId(match.getScoreCard1().getTeamId()),match.getMatchId());
+
+    public String declareResult(String matchId) {
+        Match match = matchRepository.findById(matchId).get();
+        if(isNull(match)) {
+            System.out.println("No match found with given ID");
+            return null;
+        }
+        switch (match.getStatus()) {
+            case OVER -> {
+                break;
+            }
+            default -> {
+                return "Match Not Completed Yet !";
+            }
+        }
+        BattingScoreCard firstInningBatting = battingScoreCardRepository.findByMatchIdTeamName(matchId,match.getFirstBattingTeam());
+        BattingScoreCard secondInningBatting = battingScoreCardRepository.findByMatchIdTeamName(matchId,
+                match.getFirstBattingTeam().equals(match.getTeams().get(0)) ? match.getTeams().get(1):match.getTeams().get(0));
+        if(firstInningBatting.getTotalRuns()> secondInningBatting.getTotalRuns()){
+            match.setWinnerTeam(firstInningBatting.getTeamName());
+            matchRepository.save(match);
+            return firstInningBatting.getTeamName() + "wins!";
+        }
+
+        else if(firstInningBatting.getTotalRuns()< secondInningBatting.getTotalRuns()){
+            match.setWinnerTeam(secondInningBatting.getTeamName());
+            matchRepository.save(match);
+            return secondInningBatting.getTeamName() + "wins!";
+        }
+        else return "Match Tie!";
+
     }
 
 }

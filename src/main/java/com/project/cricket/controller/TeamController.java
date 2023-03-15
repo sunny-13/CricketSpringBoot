@@ -18,8 +18,9 @@ public class TeamController {
         return teamService.addTeam(team);
     }
 
-    @GetMapping("/")
+    @GetMapping("")
     public Team getTeamByName(@RequestParam String teamName){
+        System.out.println("api hit");
         return teamService.getTeamByName(teamName);
     }
 
