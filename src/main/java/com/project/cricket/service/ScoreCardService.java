@@ -3,6 +3,7 @@ package com.project.cricket.service;
 import com.project.cricket.classes.ScoreCard;
 import com.project.cricket.entity.BattingScoreCard;
 import com.project.cricket.entity.BowlingScoreCard;
+import com.project.cricket.exception.ScoreCardNotFoundException;
 import com.project.cricket.repository.BattingScoreCardRepository;
 import com.project.cricket.repository.BowlingScoreCardRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,15 +23,16 @@ public class ScoreCardService {
     @Autowired
     private BowlingScoreCardRepository bowlingScoreCardRepository;
 
-    public BattingScoreCard findBattingByMatchIdTeamName(String matchId, String teamName){
+    public BattingScoreCard findBattingByMatchIdTeamName(String matchId, String teamName) throws ScoreCardNotFoundException {
         BattingScoreCard battingScoreCard = battingScoreCardRepository.findByMatchIdTeamName(matchId,teamName);
-        if(isNull(battingScoreCard)) return null;
+        if(isNull(battingScoreCard)) throw new ScoreCardNotFoundException("No ScoreCard found for given matchId and teamName");
         return battingScoreCard;
+
     }
 
-    public BowlingScoreCard findBowlingByMatchIdTeamName(String matchId, String teamName){
+    public BowlingScoreCard findBowlingByMatchIdTeamName(String matchId, String teamName) throws ScoreCardNotFoundException{
         BowlingScoreCard bowlingScoreCard = bowlingScoreCardRepository.findByMatchIdTeamName(matchId,teamName);
-        if(isNull(bowlingScoreCard)) return null;
+        if(isNull(bowlingScoreCard)) throw new ScoreCardNotFoundException("No ScoreCard found for given matchId and teamName");
         return bowlingScoreCard;
     }
 
@@ -42,13 +44,14 @@ public class ScoreCardService {
         bowlingScoreCardRepository.save(bowlingScoreCard);
     }
 
-    public List<ScoreCard> findByMatchId(String matchId){
+    public List<ScoreCard> findByMatchId(String matchId) throws ScoreCardNotFoundException{
         List<ScoreCard> scoreCards = new ArrayList<>();
         List<BattingScoreCard> battingScoreCards = battingScoreCardRepository.findByMatchId(matchId);
         List<BowlingScoreCard> bowlingScoreCards = bowlingScoreCardRepository.findByMatchId(matchId);
 
         for(BattingScoreCard battingScoreCard: battingScoreCards) scoreCards.add(battingScoreCard);
         for(BowlingScoreCard bowlingScoreCard: bowlingScoreCards) scoreCards.add(bowlingScoreCard);
+        if(scoreCards.size()==0) throw new ScoreCardNotFoundException("No ScoreCard found for given matchId and teamName");
         return scoreCards;
     }
 

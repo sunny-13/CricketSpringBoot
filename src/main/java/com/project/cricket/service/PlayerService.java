@@ -24,8 +24,6 @@ public class PlayerService {
         return player;
     }
 
-
-
     public Player addPlayer(String playerName, String teamId){
         String playerId = UUID.randomUUID().toString();
         int playerIndex = playerRepository.findByTeamId(teamId).size();

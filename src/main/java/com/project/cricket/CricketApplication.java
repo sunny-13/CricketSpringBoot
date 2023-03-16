@@ -10,9 +10,7 @@ import java.util.Arrays;
 public class CricketApplication {
 
 	public static void main(String[] args) {
-		System.out.println("Main class hit");
 		SpringApplication.run(CricketApplication.class, args);
-//		System.out.prntln(Arrays.asList(applicationContext.getBeanDefinitionNames()));
 	}
 
 }

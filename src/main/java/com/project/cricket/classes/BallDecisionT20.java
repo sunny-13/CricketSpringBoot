@@ -5,19 +5,25 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class BallDecisionT20 implements BallDecision {
+    private final static int RANDOM_RANGE = 100;
     public int ballDecisionBatsman(){
-        //The probability of runs is 90% .
-        //The probability of being out is 30%.
-        int random = (int) (Math.random()*100)+1;
-        if(random<93) return random%7;
+        int random = (int) (Math.random()*RANDOM_RANGE)+1;
+        if(random<90){
+            if(random<80) return random%4;
+            return random%2==0? 6:4;
+        };
         return 7;
     }
 
 
 
     public int ballDecisionBowler(){
-        int random = (int) (Math.random()*100)+1;
-        if(random<85) return random%7;
+        int random = (int) (Math.random()*RANDOM_RANGE)+1;
+        if(random<85){
+            if(random<80) return random%4;
+            return random%2==0? 6:4;
+
+        }
         return 7;
     }
 }
