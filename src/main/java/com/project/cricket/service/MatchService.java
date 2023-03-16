@@ -138,22 +138,72 @@ public class MatchService {
                 return "Match Not Completed Yet !";
             }
         }
+        String result="";
         BattingScoreCard firstInningBatting = battingScoreCardRepository.findByMatchIdTeamName(matchId,match.getFirstBattingTeam());
         BattingScoreCard secondInningBatting = battingScoreCardRepository.findByMatchIdTeamName(matchId,
                 match.getFirstBattingTeam().equals(match.getTeams().get(0)) ? match.getTeams().get(1):match.getTeams().get(0));
+        result+=firstInningBatting.getTeamName()+" : "+firstInningBatting.getTotalRuns()+"/"+firstInningBatting.getWicketsDown()+"\n";
+        result+=secondInningBatting.getTeamName()+" : "+secondInningBatting.getTotalRuns()+"/"+secondInningBatting.getWicketsDown()+"\n";
         if(firstInningBatting.getTotalRuns()> secondInningBatting.getTotalRuns()){
             match.setWinnerTeam(firstInningBatting.getTeamName());
             matchRepository.save(match);
-            return firstInningBatting.getTeamName() + "wins!";
+            result+= firstInningBatting.getTeamName() + "wins! \n";
         }
 
         else if(firstInningBatting.getTotalRuns()< secondInningBatting.getTotalRuns()){
             match.setWinnerTeam(secondInningBatting.getTeamName());
             matchRepository.save(match);
-            return secondInningBatting.getTeamName() + "wins!";
+            result+= secondInningBatting.getTeamName() + "wins! \n";
         }
-        else return "Match Tie!";
+        else result+= "Match Tie! \n";
+        return result;
 
+    }
+
+    public MatchStatus getStatus(String matchId){
+        Match match = matchRepository.findById(matchId).get();
+        if(isNull(match)) {
+            System.out.println("No match found with given ID");
+            return null;
+        }
+        return match.getStatus();
+    }
+
+    public List<ScoreCard> getMatchScoreCards(String matchId){
+        Match match = matchRepository.findById(matchId).get();
+        if(isNull(match)) {
+            System.out.println("No match found with given ID");
+            return null;
+        }
+        return scoreCardService.findByMatchId(matchId);
+    }
+
+    public String getWinnerTeam(String matchId){
+        Match match = matchRepository.findById(matchId).get();
+        if(isNull(match)) {
+            System.out.println("No match found with given ID");
+            return null;
+        }
+        return match.getWinnerTeam();
+    }
+
+    public List<String> seriesMatchIds(String matchType,String team1Name, String team2Name,int noOfMatches){
+        List<String> matchIds = new ArrayList<>();
+        Match match;
+        for(int i=0;i<noOfMatches;i++){
+            match = new Match(matchType,team1Name,team2Name);
+            matchRepository.save(match);
+            matchIds.add(match.getMatchId());
+        }
+        return matchIds;
+    }
+
+    public String playSeriesMatches(String matchId){
+        toss(matchId,(int) (Math.random() * 2) + 1==1 ? "HEADS":"TAILS");
+        playInning1(matchId);
+        playInning2(matchId);
+        String result = declareResult(matchId);
+        return result;
     }
 
 }
