@@ -3,6 +3,7 @@ package com.project.cricket.service;
 import com.project.cricket.classes.ScoreCard;
 import com.project.cricket.entity.BattingScoreCard;
 import com.project.cricket.entity.BowlingScoreCard;
+import com.project.cricket.exception.InvalidIdException;
 import com.project.cricket.exception.ScoreCardNotFoundException;
 import com.project.cricket.repository.BattingScoreCardRepository;
 import com.project.cricket.repository.BowlingScoreCardRepository;
@@ -22,6 +23,8 @@ public class ScoreCardService {
     private BattingScoreCardRepository battingScoreCardRepository;
     @Autowired
     private BowlingScoreCardRepository bowlingScoreCardRepository;
+    @Autowired
+    private TeamService teamService;
 
     public BattingScoreCard findBattingByMatchIdTeamName(String matchId, String teamName) throws ScoreCardNotFoundException {
         BattingScoreCard battingScoreCard = battingScoreCardRepository.findByMatchIdTeamName(matchId,teamName);
@@ -54,6 +57,14 @@ public class ScoreCardService {
         if(scoreCards.size()==0) throw new ScoreCardNotFoundException("No ScoreCard found for given matchId and teamName");
         return scoreCards;
     }
+
+//    public void printScoreCard(String matchId) throws ScoreCardNotFoundException, InvalidIdException {
+//        List<ScoreCard> scoreCards = new ArrayList<>();
+//        List<BattingScoreCard> battingScoreCards = battingScoreCardRepository.findByMatchId(matchId);
+//        List<BowlingScoreCard> bowlingScoreCards = bowlingScoreCardRepository.findByMatchId(matchId);
+//        List<String> playerNamesTeam1 = teamService.getPlayerListNames(battingScoreCards.get(0).getTeamName());
+//        //Some logic to print now.
+//    }
 
 
 

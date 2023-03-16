@@ -1,11 +1,13 @@
 package com.project.cricket.service;
 
+import com.project.cricket.entity.Player;
 import com.project.cricket.entity.Team;
 import com.project.cricket.exception.InvalidIdException;
 import com.project.cricket.repository.TeamRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -17,6 +19,8 @@ import static java.util.Objects.isNull;
 public class TeamService {
     @Autowired
     private TeamRepository teamRepository;
+    @Autowired
+    private PlayerService playerService;
 
 
     public Team addTeam(Team team){
@@ -54,17 +58,23 @@ public class TeamService {
         return team.getPlayerList();
     }
 
-    public List<String> getPlayerListByTeamName(String teamName) throws InvalidIdException{
+    public List<String> getPlayerIdsByTeamName(String teamName) throws InvalidIdException{
         Team team = teamRepository.findByTeamName(teamName);
         if(isNull(team)) throw new InvalidIdException("No team found for given teamName: "+teamName);
         return team.getPlayerList();
     }
 
+    public List<String> getPlayerNamesByTeamName(String teamName) throws InvalidIdException{
+        Team team = teamRepository.findByTeamName(teamName);
+        if(isNull(team)) throw new InvalidIdException("No team found for given teamName: "+teamName);
+        List<String> playerNames=new ArrayList<>();
+        for(int i=0;i<11;i++){
+            playerNames.add(playerService.getPlayerById(team.getPlayerList().get(i)).getPlayerName());
+        }
+        return playerNames;
+    }
 
 
-    //    public List<String> getMatchListByTeamId(String teamId){
-//        return teamRepository.findById(teamId).get().getMatchList();
-//    }
 
 
 }

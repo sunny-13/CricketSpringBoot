@@ -7,6 +7,8 @@ import com.project.cricket.exception.InvalidIdException;
 import com.project.cricket.exception.ScoreCardNotFoundException;
 import com.project.cricket.service.MatchService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,29 +20,29 @@ public class MatchController {
     private MatchService matchService;
 
     @PostMapping("/")
-    public String createMatch(@RequestBody MatchRequestBody matchRequestBody) throws InvalidIdException{
-        return matchService.newMatch(matchRequestBody.getMatchType(), matchRequestBody.getTeam1Name(), matchRequestBody.getTeam2Name());
+    public ResponseEntity<String> createMatch(@RequestBody MatchRequestBody matchRequestBody) throws InvalidIdException{
+        return new ResponseEntity<>(matchService.newMatch(matchRequestBody.getMatchType(), matchRequestBody.getTeam1Name(), matchRequestBody.getTeam2Name()), HttpStatus.OK);
 
     }
 
     @PostMapping("/toss")
-    public String tossMatch(@RequestParam String matchId, @RequestParam String tossChoice) throws InvalidIdException{
-        return matchService.toss(matchId,tossChoice);
+    public ResponseEntity<String> tossMatch(@RequestParam String matchId, @RequestParam String tossChoice) throws InvalidIdException{
+        return new ResponseEntity<>( matchService.toss(matchId,tossChoice),HttpStatus.OK);
     }
 
     @GetMapping("/playInning1")
-    public List<ScoreCard> playInning1(@RequestParam String matchId) throws InvalidIdException,ScoreCardNotFoundException{
-        return matchService.playInning1(matchId);
+    public ResponseEntity<List<ScoreCard>> playInning1(@RequestParam String matchId) throws InvalidIdException,ScoreCardNotFoundException{
+        return new ResponseEntity<>( matchService.playInning1(matchId),HttpStatus.OK);
     }
 
     @GetMapping("/playInning2")
-    public List<ScoreCard> playInning2(@RequestParam String matchId) throws InvalidIdException, ScoreCardNotFoundException {
-        return matchService.playInning2(matchId);
+    public ResponseEntity<List<ScoreCard>> playInning2(@RequestParam String matchId) throws InvalidIdException, ScoreCardNotFoundException {
+        return new ResponseEntity<>(matchService.playInning2(matchId),HttpStatus.OK);
     }
 
     @GetMapping("/result")
-    public String getResult(@RequestParam String matchId) throws InvalidIdException,ScoreCardNotFoundException {
-        return matchService.declareResult(matchId);
+    public ResponseEntity<String> getResult(@RequestParam String matchId) throws InvalidIdException,ScoreCardNotFoundException {
+        return new ResponseEntity<>(matchService.declareResult(matchId),HttpStatus.OK);
     }
 
 }
