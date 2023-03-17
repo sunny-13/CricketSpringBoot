@@ -1,23 +1,20 @@
 package com.project.cricket.service;
 
-import com.project.cricket.classes.MatchSimulator;
-import com.project.cricket.classes.MatchStatus;
-import com.project.cricket.classes.MatchType;
-import com.project.cricket.classes.ScoreCard;
+import com.project.cricket.classes.*;
 import com.project.cricket.entity.BattingScoreCard;
 import com.project.cricket.entity.BowlingScoreCard;
 import com.project.cricket.entity.Match;
+import com.project.cricket.entity.Player;
 import com.project.cricket.exception.InvalidIdException;
 import com.project.cricket.exception.ScoreCardNotFoundException;
 import com.project.cricket.repository.BattingScoreCardRepository;
 import com.project.cricket.repository.BowlingScoreCardRepository;
 import com.project.cricket.repository.MatchRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static java.util.Objects.isNull;
 
@@ -156,16 +153,6 @@ public class MatchService {
 
 
 
-    public MatchStatus getStatus(String matchId) throws InvalidIdException{
-        Match match = getMatchById(matchId);
-        return match.getStatus();
-    }
-
-    public List<ScoreCard> getMatchScoreCard(String matchId) throws InvalidIdException,ScoreCardNotFoundException{
-        Match match = getMatchById(matchId);
-        return scoreCardService.findByMatchId(matchId);
-    }
-
     public String getWinnerTeam(String matchId) throws InvalidIdException{
         Match match = getMatchById(matchId);
         return match.getWinnerTeam();
@@ -190,6 +177,44 @@ public class MatchService {
         playInning2(matchId);
         String result = declareResult(matchId);
         return result;
+    }
+
+    public MatchStatus getStatus(String matchId) throws InvalidIdException{
+        Match match = getMatchById(matchId);
+        return match.getStatus();
+    }
+
+    public List<String> getMatchFormattedScoreCard(String matchId) throws InvalidIdException,ScoreCardNotFoundException{
+        Match match = getMatchById(matchId);
+        List<ScoreCard> scoreCards = scoreCardService.findByMatchId(matchId);
+        List<String> formattedScorecard = new ArrayList<>();
+
+        for(ScoreCard scoreCard : scoreCards){
+            if(scoreCard.getScoreCardType().equals(ScoreCardType.BATTING_SCORECARD)){
+
+                BattingScoreCard scoreCardCasted = (BattingScoreCard) scoreCard;
+                String teamScore = scoreCardCasted.getTotalRuns()+"/"+scoreCardCasted.getWicketsDown();
+                formattedScorecard.add("BattingScorecard: "+scoreCardCasted.getTeamName()+" : "+teamScore);
+                List<String> playerNames = teamService.getPlayerNamesByTeamName(scoreCard.getTeamName());
+                for(int i=0;i<11;i++){
+                    String playerScore = scoreCardCasted.getRunsScored().get(i)+"/"+scoreCardCasted.getBallsPlayed().get(i);
+                    formattedScorecard.add(playerNames.get(i)+" : "+playerScore);
+                }
+            }
+            else{
+                BowlingScoreCard scoreCardCasted = (BowlingScoreCard) scoreCard;
+                formattedScorecard.add("BowlingScorecard"+" : "+scoreCardCasted.getTeamName());
+                List<String> playerNames = teamService.getPlayerNamesByTeamName(scoreCard.getTeamName());
+                for(int i=0;i<11;i++){
+                    if(scoreCardCasted.getBallsBowled().get(i)==0) continue;
+                    String playerBowlingStats = scoreCardCasted.getRunsGiven().get(i)+"/"+scoreCardCasted.getBallsBowled().get(i);
+                    formattedScorecard.add(playerNames.get(i)+" : "+playerBowlingStats);
+                }
+            }
+        }
+
+        formattedScorecard.add(match.getWinnerTeam()+" wins!");
+        return formattedScorecard;
     }
 
 }

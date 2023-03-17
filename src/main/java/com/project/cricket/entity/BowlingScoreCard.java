@@ -1,6 +1,7 @@
 package com.project.cricket.entity;
 
 import com.project.cricket.classes.ScoreCard;
+import com.project.cricket.classes.ScoreCardType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
@@ -28,6 +29,7 @@ public class BowlingScoreCard extends ScoreCard {
         runsGiven = new ArrayList<>(Collections.nCopies(11,0));
         ballsBowled = new ArrayList<>(Collections.nCopies(11,0));
         wicketsTaken = new ArrayList<>(Collections.nCopies(11,0));
+        setScoreCardType(ScoreCardType.BOWLING_SCORECARD);
     }
 
 

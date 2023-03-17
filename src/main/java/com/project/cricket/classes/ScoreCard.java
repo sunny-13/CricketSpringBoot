@@ -6,4 +6,5 @@ import lombok.Data;
 public class ScoreCard {
     private String matchId;
     private String teamName;
+    private ScoreCardType scoreCardType;
 }

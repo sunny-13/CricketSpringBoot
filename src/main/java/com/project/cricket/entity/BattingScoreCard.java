@@ -1,6 +1,7 @@
 package com.project.cricket.entity;
 
 import com.project.cricket.classes.ScoreCard;
+import com.project.cricket.classes.ScoreCardType;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -26,5 +27,6 @@ public class BattingScoreCard extends ScoreCard {
         setTeamName(teamName);
         runsScored = new ArrayList<>(Collections.nCopies(11,0));
         ballsPlayed = new ArrayList<>(Collections.nCopies(11,0));
+        setScoreCardType(ScoreCardType.BATTING_SCORECARD);
     }
 }

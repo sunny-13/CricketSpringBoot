@@ -46,7 +46,10 @@ public class TeamService {
     public void updateMatchList(String teamName, String matchId) throws InvalidIdException {
         Team team = teamRepository.findByTeamName(teamName);
         if (isNull(team)) throw new InvalidIdException("No team found for given teamName: " + teamName);
-        team.getMatchList().add(matchId);
+        List<String> matchList= team.getMatchList();
+        if(isNull(matchList)) {matchList=new ArrayList<>(); }
+        matchList.add(matchId);
+        team.setMatchList(matchList);
         teamRepository.save(team);
 
     }

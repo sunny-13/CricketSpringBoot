@@ -1,5 +1,7 @@
 package com.project.cricket.controller;
 
+import com.project.cricket.classes.MatchStatus;
+import com.project.cricket.classes.MatchType;
 import com.project.cricket.requestbody.MatchRequestBody;
 import com.project.cricket.classes.ScoreCard;
 
@@ -12,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/match")
@@ -30,12 +33,12 @@ public class MatchController {
         return new ResponseEntity<>( matchService.toss(matchId,tossChoice),HttpStatus.OK);
     }
 
-    @GetMapping("/playInning1")
+    @GetMapping("/playinning1")
     public ResponseEntity<List<ScoreCard>> playInning1(@RequestParam String matchId) throws InvalidIdException,ScoreCardNotFoundException{
         return new ResponseEntity<>( matchService.playInning1(matchId),HttpStatus.OK);
     }
 
-    @GetMapping("/playInning2")
+    @GetMapping("/playinning2")
     public ResponseEntity<List<ScoreCard>> playInning2(@RequestParam String matchId) throws InvalidIdException, ScoreCardNotFoundException {
         return new ResponseEntity<>(matchService.playInning2(matchId),HttpStatus.OK);
     }
@@ -43,6 +46,16 @@ public class MatchController {
     @GetMapping("/result")
     public ResponseEntity<String> getResult(@RequestParam String matchId) throws InvalidIdException,ScoreCardNotFoundException {
         return new ResponseEntity<>(matchService.declareResult(matchId),HttpStatus.OK);
+    }
+
+    @GetMapping("/status")
+    public ResponseEntity<MatchStatus> getStatus(@RequestParam String matchId) throws InvalidIdException {
+        return new ResponseEntity<>(matchService.getStatus(matchId),HttpStatus.OK);
+    }
+
+    @GetMapping("/scorecard")
+    public ResponseEntity<List<String>> getMatchFormattedScoreCard(@RequestParam String matchId) throws InvalidIdException,ScoreCardNotFoundException{
+        return new ResponseEntity<>(matchService.getMatchFormattedScoreCard(matchId),HttpStatus.OK);
     }
 
 }
