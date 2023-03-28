@@ -20,5 +20,5 @@ public class Team {
     private String teamName;
     private List<String> matchList;
     private List<String> playerList;
-    private int wins;
+
 }

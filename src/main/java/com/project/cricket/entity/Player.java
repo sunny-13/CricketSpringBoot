@@ -19,6 +19,6 @@ public class Player {
     private String playerId;
     private String playerName;
     private String teamId;
-    private List<String> matchList;
+    private int playerIndex;
 
 }
